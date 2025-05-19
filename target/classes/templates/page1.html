@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Page d'Administration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet Draw CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .form-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .map-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        #map {
+            height: 700px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .nav {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .nav a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #2980b9;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-header i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .map-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .map-header i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .zone-controls {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .zone-controls h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .zone-type-selector {
+            margin-bottom: 1rem;
+        }
+
+        .zone-type-selector select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .zone-target-selector {
+            display: none;
+        }
+
+        .zone-target-selector.active {
+            display: block;
+        }
+
+        .zone-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .zone-item {
+            padding: 0.8rem;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .zone-item .zone-info {
+            flex-grow: 1;
+        }
+
+        .zone-item .zone-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .zone-item button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-school"></i> Système de Suivi des Étudiants</h1>
+    </div>
+    <div class="container">
+        <div class="form-section">
+            <div class="form-header">
+                <i class="fas fa-user-plus"></i>
+                <h2>Ajouter un Étudiant</h2>
+            </div>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="nom"><i class="fas fa-user"></i> Nom:</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom"><i class="fas fa-user"></i> Prénom:</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="id"><i class="fas fa-id-card"></i> ID:</label>
+                    <input type="text" id="id" name="id" required>
+                </div>
+                <div class="form-group">
+                    <label for="groupe"><i class="fas fa-users"></i> Groupe:</label>
+                    <input type="text" id="groupe" name="groupe" required>
+                </div>
+                <div class="form-group">
+                    <label for="annee"><i class="fas fa-graduation-cap"></i> Année:</label>
+                    <select id="annee" name="annee" required>
+                        <option value="">Sélectionner une année</option>
+                        <option value="1">1ère année</option>
+                        <option value="2">2ème année</option>
+                        <option value="3">3ème année</option>
+                    </select>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-plus"></i>
+                    Ajouter l'étudiant
+                </button>
+            </form>
+
+            <div class="zone-controls">
+                <h2><i class="fas fa-draw-polygon"></i> Zones d'Accès</h2>
+                <div class="zone-type-selector">
+                    <select id="zoneType">
+                        <option value="">Sélectionner le type de zone</option>
+                        <option value="classe">Classe</option>
+                        <option value="etudiant">Étudiant</option>
+                        <option value="annee">Année</option>
+                    </select>
+                </div>
+                <div id="zoneTargetSelector" class="zone-target-selector">
+                    <!-- Sera rempli dynamiquement selon le type sélectionné -->
+                </div>
+                <button id="startDrawing" class="draw-button">
+                    <i class="fas fa-pencil-alt"></i>
+                    Commencer à dessiner
+                </button>
+                <div class="zone-list" id="zoneList">
+                    <!-- Les zones seront ajoutées ici dynamiquement -->
+                </div>
+            </div>
+
+            <div class="nav">
+                <a href="/page2">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Aller à la Page de Simulation
+                </a>
+            </div>
+        </div>
+        <div class="map-section">
+            <div class="map-header">
+                <i class="fas fa-map"></i>
+                <h2>Carte de l'École</h2>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Draw JS -->
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script>
+        // Coordonnées d'une école réelle (à remplacer par les coordonnées de votre école)
+        const schoolCoordinates = [48.8566, 2.3522];
+        
+        // Initialisation de la carte
+        const map = L.map('map').setView(schoolCoordinates, 18);
+
+        // Ajout du fond de carte OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Initialisation des contrôles de dessin
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    shapeOptions: {
+                        color: 'red',
+                        fillColor: 'red',
+                        fillOpacity: 0.3
+                    }
+                },
+                circle: false,
+                rectangle: false,
+                polyline: false,
+                circlemarker: false,
+                marker: false
+            },
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+        map.addControl(drawControl);
+
+        // Gestion des événements de dessin
+        map.on('draw:created', function(e) {
+            const type = e.layerType;
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            // Ajouter la zone à la liste
+            const zoneType = document.getElementById('zoneType').value;
+            const zoneTarget = document.getElementById('zoneTargetSelector').value;
+            addZoneToList(zoneType, zoneTarget, layer);
+        });
+
+        // Gestion du type de zone
+        document.getElementById('zoneType').addEventListener('change', function(e) {
+            const targetSelector = document.getElementById('zoneTargetSelector');
+            targetSelector.innerHTML = '';
+            targetSelector.classList.add('active');
+
+            switch(e.target.value) {
+                case 'classe':
+                    addClassOptions(targetSelector);
+                    break;
+                case 'etudiant':
+                    addStudentOptions(targetSelector);
+                    break;
+                case 'annee':
+                    addYearOptions(targetSelector);
+                    break;
+                default:
+                    targetSelector.classList.remove('active');
+            }
+        });
+
+        // Fonctions utilitaires pour ajouter les options
+        function addClassOptions(container) {
+            const select = document.createElement('select');
+            select.innerHTML = `
+                <option value="">Sélectionner une classe</option>
+                <option value="A">Classe A</option>
+                <option value="B">Classe B</option>
+                <option value="C">Classe C</option>
+            `;
+            container.appendChild(select);
+        }
+
+        function addStudentOptions(container) {
+            const select = document.createElement('select');
+            select.innerHTML = `
+                <option value="">Sélectionner un étudiant</option>
+                <option value="1">John Doe</option>
+                <option value="2">Jane Smith</option>
+            `;
+            container.appendChild(select);
+        }
+
+        function addYearOptions(container) {
+            const select = document.createElement('select');
+            select.innerHTML = `
+                <option value="">Sélectionner une année</option>
+                <option value="1">1ère année</option>
+                <option value="2">2ème année</option>
+                <option value="3">3ème année</option>
+            `;
+            container.appendChild(select);
+        }
+
+        function addZoneToList(type, target, layer) {
+            const zoneList = document.getElementById('zoneList');
+            const zoneItem = document.createElement('div');
+            zoneItem.className = 'zone-item';
+            zoneItem.innerHTML = `
+                <div class="zone-info">
+                    <strong>${type}:</strong> ${target}
+                </div>
+                <div class="zone-actions">
+                    <button onclick="editZone(this)" class="edit-button">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteZone(this)" class="delete-button">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            zoneList.appendChild(zoneItem);
+        }
+
+        // Fonctions pour éditer et supprimer les zones
+        function editZone(button) {
+            // À implémenter
+            alert('Édition de zone à implémenter');
+        }
+
+        function deleteZone(button) {
+            const zoneItem = button.closest('.zone-item');
+            zoneItem.remove();
+            // Supprimer également la couche de la carte
+            // À implémenter
+        }
+    </script>
+</body>
+</html> 

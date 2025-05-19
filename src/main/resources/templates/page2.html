@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Page de Simulation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .controls-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .map-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        #map {
+            height: 700px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .student-list {
+            margin-top: 2rem;
+        }
+
+        .student-list h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .student-item {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background-color: white;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .student-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .student-emoji {
+            font-size: 2rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .student-item:hover .student-emoji {
+            transform: scale(1.1);
+        }
+
+        .student-info {
+            flex-grow: 1;
+        }
+
+        .student-item h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .student-item p {
+            margin: 0.5rem 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .nav a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #2980b9;
+        }
+
+        .map-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .map-header i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .student-marker {
+            background-color: white;
+            border-radius: 50%;
+            padding: 0.5rem;
+            box-shadow: var(--card-shadow);
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-map-marked-alt"></i> Simulation de Suivi des Étudiants</h1>
+    </div>
+    <div class="container">
+        <div class="controls-section">
+            <div class="student-list">
+                <h2><i class="fas fa-users"></i> Liste des Étudiants</h2>
+                <div id="studentsList">
+                    <!-- Exemple d'étudiant -->
+                    <div class="student-item" draggable="true" data-student-id="1">
+                        <div class="student-emoji">👨‍🎓</div>
+                        <div class="student-info">
+                            <h3><i class="fas fa-user-graduate"></i> John Doe</h3>
+                            <p><i class="fas fa-id-card"></i> ID: 12345</p>
+                            <p><i class="fas fa-users"></i> Groupe: A</p>
+                            <p><i class="fas fa-graduation-cap"></i> Année: 2</p>
+                        </div>
+                    </div>
+                    <div class="student-item" draggable="true" data-student-id="2">
+                        <div class="student-emoji">👩‍🎓</div>
+                        <div class="student-info">
+                            <h3><i class="fas fa-user-graduate"></i> Jane Smith</h3>
+                            <p><i class="fas fa-id-card"></i> ID: 12346</p>
+                            <p><i class="fas fa-users"></i> Groupe: B</p>
+                            <p><i class="fas fa-graduation-cap"></i> Année: 1</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav">
+                <a href="/">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour à la Page d'Administration
+                </a>
+            </div>
+        </div>
+        <div class="map-section">
+            <div class="map-header">
+                <i class="fas fa-map"></i>
+                <h2>Carte de l'École</h2>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Coordonnées d'une école réelle (à remplacer par les coordonnées de votre école)
+        const schoolCoordinates = [48.8566, 2.3522];
+        
+        // Initialisation de la carte
+        const map = L.map('map').setView(schoolCoordinates, 18);
+
+        // Ajout du fond de carte OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Gestion du drag & drop des étudiants
+        const studentItems = document.querySelectorAll('.student-item');
+        let draggedStudent = null;
+
+        studentItems.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedStudent = item;
+                e.dataTransfer.setData('text/plain', item.dataset.studentId);
+            });
+
+            item.addEventListener('click', () => {
+                const emoji = item.querySelector('.student-emoji').textContent;
+                const studentName = item.querySelector('h3').textContent;
+                
+                // Créer un marqueur personnalisé pour l'étudiant
+                const marker = L.marker(map.getCenter(), {
+                    draggable: true,
+                    icon: L.divIcon({
+                        className: 'student-marker',
+                        html: emoji,
+                        iconSize: [40, 40]
+                    })
+                }).addTo(map);
+
+                // Ajouter un popup avec le nom de l'étudiant
+                marker.bindPopup(studentName);
+            });
+        });
+
+        // Gestion du drop sur la carte
+        map.on('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        map.on('drop', (e) => {
+            if (draggedStudent) {
+                const emoji = draggedStudent.querySelector('.student-emoji').textContent;
+                const studentName = draggedStudent.querySelector('h3').textContent;
+                
+                // Créer un marqueur à la position du drop
+                const marker = L.marker(e.latlng, {
+                    draggable: true,
+                    icon: L.divIcon({
+                        className: 'student-marker',
+                        html: emoji,
+                        iconSize: [40, 40]
+                    })
+                }).addTo(map);
+
+                // Ajouter un popup avec le nom de l'étudiant
+                marker.bindPopup(studentName);
+                
+                draggedStudent = null;
+            }
+        });
+    </script>
+</body>
+</html> 
