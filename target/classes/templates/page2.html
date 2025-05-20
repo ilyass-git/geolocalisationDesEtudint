@@ -75,19 +75,70 @@
 
         .student-list {
             margin-top: 2rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .year-section {
+            margin-bottom: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .year-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .year-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .group-section {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .group-header h4 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .group-students {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            padding: 0.5rem;
         }
 
         .student-item {
             padding: 1rem;
             border: 1px solid #ddd;
             border-radius: 8px;
-            margin-bottom: 1rem;
             background-color: white;
             transition: transform 0.3s ease;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
         }
 
         .student-item:hover {
@@ -97,7 +148,7 @@
 
         .student-item.selected {
             border-color: var(--secondary-color);
-            background-color: #f0f7ff;
+            background-color: #f8f9fa;
         }
 
         .student-emoji {
@@ -112,15 +163,21 @@
         }
 
         .student-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .student-details {
             flex-grow: 1;
         }
 
-        .student-info h3 {
+        .student-details h3 {
             margin: 0 0 0.5rem 0;
             color: var(--primary-color);
         }
 
-        .student-info p {
+        .student-details p {
             margin: 0.5rem 0;
             color: #666;
         }
@@ -385,6 +442,107 @@
             const center = map.getCenter();
             createBeaconMarker(center.lat, center.lng);
         });
+
+        // Fonction pour organiser les étudiants par année et groupe
+        function organizeStudentsByYearAndGroup(studentsData) {
+            // Trier les étudiants par année et groupe
+            const studentsByYear = new Map();
+            
+            studentsData.forEach(student => {
+                if (!studentsByYear.has(student.annee)) {
+                    studentsByYear.set(student.annee, new Map());
+                }
+                
+                const yearGroups = studentsByYear.get(student.annee);
+                if (!yearGroups.has(student.groupe)) {
+                    yearGroups.set(student.groupe, []);
+                }
+                
+                yearGroups.get(student.groupe).push(student);
+            });
+
+            // Créer la structure HTML
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = '';
+
+            // Trier les années par ordre croissant
+            const sortedYears = Array.from(studentsByYear.keys()).sort((a, b) => a - b);
+
+            sortedYears.forEach(year => {
+                const yearSection = document.createElement('div');
+                yearSection.className = 'year-section';
+                
+                yearSection.innerHTML = `
+                    <div class="year-header">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Année ${year}</h3>
+                    </div>
+                `;
+
+                const yearGroups = studentsByYear.get(year);
+                // Trier les groupes par ordre alphabétique
+                const sortedGroups = Array.from(yearGroups.keys()).sort();
+
+                sortedGroups.forEach(group => {
+                    const groupSection = document.createElement('div');
+                    groupSection.className = 'group-section';
+                    
+                    groupSection.innerHTML = `
+                        <div class="group-header">
+                            <i class="fas fa-users"></i>
+                            <h4>Groupe ${group}</h4>
+                        </div>
+                        <div class="group-students"></div>
+                    `;
+
+                    const groupStudents = groupSection.querySelector('.group-students');
+                    yearGroups.get(group).forEach(student => {
+                        const studentItem = createStudentListItem(student);
+                        groupStudents.appendChild(studentItem);
+                    });
+
+                    yearSection.appendChild(groupSection);
+                });
+
+                studentsList.appendChild(yearSection);
+            });
+        }
+
+        // Fonction pour rafraîchir les positions des étudiants
+        async function refreshStudentPositions() {
+            try {
+                const response = await fetch('/api/students');
+                const studentsData = await response.json();
+                
+                studentsData.forEach(student => {
+                    if (students.has(student.id)) {
+                        const existingStudent = students.get(student.id);
+                        // Utiliser les coordonnées par défaut si null
+                        const latitude = student.latitude ?? 48.8566;
+                        const longitude = student.longitude ?? 2.3522;
+                        
+                        // Mettre à jour si la position a changé
+                        if (existingStudent.latitude !== latitude || 
+                            existingStudent.longitude !== longitude) {
+                            updateStudentPosition(student.id, latitude, longitude, true);
+                        }
+                    } else {
+                        // Utiliser les coordonnées par défaut si null
+                        const latitude = student.latitude ?? 48.8566;
+                        const longitude = student.longitude ?? 2.3522;
+                        
+                        students.set(student.id, student);
+                        const marker = createStudentMarker(student);
+                        studentMarkers.set(student.id, marker);
+                    }
+                });
+
+                // Organiser les étudiants par année et groupe
+                organizeStudentsByYearAndGroup(studentsData);
+            } catch (error) {
+                console.error('Erreur lors du rafraîchissement des positions:', error);
+            }
+        }
 
         // Initialisation des étudiants et beacons
         document.addEventListener('DOMContentLoaded', async function() {
