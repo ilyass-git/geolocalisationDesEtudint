@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Page de Simulation</title>
+    <title>Simulation de Suivi des Étudiants</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Leaflet CSS -->
@@ -77,13 +77,6 @@
             margin-top: 2rem;
         }
 
-        .student-list h2 {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
         .student-item {
             padding: 1rem;
             border: 1px solid #ddd;
@@ -102,6 +95,11 @@
             box-shadow: var(--card-shadow);
         }
 
+        .student-item.selected {
+            border-color: var(--secondary-color);
+            background-color: #f0f7ff;
+        }
+
         .student-emoji {
             font-size: 2rem;
             width: 3rem;
@@ -111,31 +109,20 @@
             justify-content: center;
             background-color: #f8f9fa;
             border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        .student-item:hover .student-emoji {
-            transform: scale(1.1);
         }
 
         .student-info {
             flex-grow: 1;
         }
 
-        .student-item h3 {
+        .student-info h3 {
             margin: 0 0 0.5rem 0;
             color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
-        .student-item p {
+        .student-info p {
             margin: 0.5rem 0;
             color: #666;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .nav {
@@ -151,31 +138,65 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav a:hover {
-            color: #2980b9;
-        }
-
-        .map-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .map-header i {
-            font-size: 2rem;
-            color: var(--secondary-color);
         }
 
         .student-marker {
-            background-color: white;
+            background-color: var(--secondary-color);
+            border: 2px solid white;
             border-radius: 50%;
-            padding: 0.5rem;
+            width: 20px;
+            height: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Style pour le bouton d'ajout de beacon */
+        .add-beacon-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
             box-shadow: var(--card-shadow);
-            cursor: move;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-beacon-btn:hover {
+            transform: scale(1.1);
+            background-color: #2980b9;
+        }
+
+        /* Style pour les BLE beacons */
+        .ble-beacon {
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .beacon-popup {
+            text-align: center;
+        }
+
+        .beacon-popup h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .beacon-popup p {
+            margin: 0.25rem 0;
+            color: #666;
         }
     </style>
 </head>
@@ -188,25 +209,7 @@
             <div class="student-list">
                 <h2><i class="fas fa-users"></i> Liste des Étudiants</h2>
                 <div id="studentsList">
-                    <!-- Exemple d'étudiant -->
-                    <div class="student-item" draggable="true" data-student-id="1">
-                        <div class="student-emoji">👨‍🎓</div>
-                        <div class="student-info">
-                            <h3><i class="fas fa-user-graduate"></i> John Doe</h3>
-                            <p><i class="fas fa-id-card"></i> ID: 12345</p>
-                            <p><i class="fas fa-users"></i> Groupe: A</p>
-                            <p><i class="fas fa-graduation-cap"></i> Année: 2</p>
-                        </div>
-                    </div>
-                    <div class="student-item" draggable="true" data-student-id="2">
-                        <div class="student-emoji">👩‍🎓</div>
-                        <div class="student-info">
-                            <h3><i class="fas fa-user-graduate"></i> Jane Smith</h3>
-                            <p><i class="fas fa-id-card"></i> ID: 12346</p>
-                            <p><i class="fas fa-users"></i> Groupe: B</p>
-                            <p><i class="fas fa-graduation-cap"></i> Année: 1</p>
-                        </div>
-                    </div>
+                    <!-- La liste des étudiants sera générée dynamiquement ici -->
                 </div>
             </div>
             <div class="nav">
@@ -225,73 +228,192 @@
         </div>
     </div>
 
+    <!-- Bouton d'ajout de beacon -->
+    <button class="add-beacon-btn" id="addBeaconBtn">
+        <i class="fas fa-plus"></i>
+    </button>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Coordonnées d'une école réelle (à remplacer par les coordonnées de votre école)
-        const schoolCoordinates = [48.8566, 2.3522];
-        
         // Initialisation de la carte
-        const map = L.map('map').setView(schoolCoordinates, 18);
-
-        // Ajout du fond de carte OpenStreetMap
+        const map = L.map('map').setView([48.8566, 2.3522], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Gestion du drag & drop des étudiants
-        const studentItems = document.querySelectorAll('.student-item');
-        let draggedStudent = null;
+        // Gestion des étudiants et beacons
+        const students = new Map();
+        const studentMarkers = new Map();
+        const beaconMarkers = new Map();
+        let selectedStudent = null;
+        let nextBeaconId = 1;
 
-        studentItems.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                draggedStudent = item;
-                e.dataTransfer.setData('text/plain', item.dataset.studentId);
+        // Fonction pour créer un marqueur d'étudiant
+        function createStudentMarker(student) {
+            const marker = L.marker([student.latitude || 48.8566, student.longitude || 2.3522], {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'student-marker',
+                    html: `<i class="fas fa-user"></i>`,
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
+
+            const popup = L.popup()
+                .setContent(`
+                    <strong>${student.prenom} ${student.nom}</strong><br>
+                    Matricule: ${student.matricule}<br>
+                    Groupe: ${student.groupe}<br>
+                    Année: ${student.annee}
+                `);
+            marker.bindPopup(popup);
+
+            marker.on('dragend', function(event) {
+                const position = event.target.getLatLng();
+                updateStudentPosition(student.id, position.lat, position.lng);
             });
 
-            item.addEventListener('click', () => {
-                const emoji = item.querySelector('.student-emoji').textContent;
-                const studentName = item.querySelector('h3').textContent;
-                
-                // Créer un marqueur personnalisé pour l'étudiant
-                const marker = L.marker(map.getCenter(), {
-                    draggable: true,
-                    icon: L.divIcon({
-                        className: 'student-marker',
-                        html: emoji,
-                        iconSize: [40, 40]
-                    })
-                }).addTo(map);
+            return marker;
+        }
 
-                // Ajouter un popup avec le nom de l'étudiant
-                marker.bindPopup(studentName);
+        // Fonction pour mettre à jour la position d'un étudiant
+        async function updateStudentPosition(studentId, latitude, longitude) {
+            try {
+                const response = await fetch(`/api/students/${studentId}/position?latitude=${latitude}&longitude=${longitude}`, {
+                    method: 'PUT'
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                
+                // Mettre à jour les coordonnées dans l'objet étudiant
+                const student = students.get(studentId);
+                if (student) {
+                    student.latitude = latitude;
+                    student.longitude = longitude;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour de la position');
+            }
+        }
+
+        // Fonction pour créer un élément de liste d'étudiant
+        function createStudentListItem(student) {
+            const div = document.createElement('div');
+            div.className = 'student-item';
+            div.dataset.studentId = student.id;
+            
+            div.innerHTML = `
+                <div class="student-emoji">👨‍🎓</div>
+                <div class="student-info">
+                    <h3>${student.prenom} ${student.nom}</h3>
+                    <p><i class="fas fa-id-card"></i> ${student.matricule}</p>
+                    <p><i class="fas fa-users"></i> Groupe: ${student.groupe}</p>
+                    <p><i class="fas fa-graduation-cap"></i> Année: ${student.annee}</p>
+                </div>
+            `;
+
+            div.addEventListener('click', () => {
+                // Désélectionner l'étudiant précédent
+                if (selectedStudent) {
+                    document.querySelector(`.student-item[data-student-id="${selectedStudent.id}"]`)?.classList.remove('selected');
+                }
+
+                // Sélectionner le nouvel étudiant
+                div.classList.add('selected');
+                selectedStudent = student;
+
+                // Centrer la carte sur l'étudiant
+                const marker = studentMarkers.get(student.id);
+                if (marker) {
+                    map.setView(marker.getLatLng(), 15);
+                }
             });
+
+            return div;
+        }
+
+        // Fonction pour créer un marqueur de beacon
+        function createBeaconMarker(lat, lng) {
+            const beaconId = nextBeaconId++;
+            const marker = L.marker([lat, lng], {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'ble-beacon',
+                    html: `<i class="fas fa-broadcast-tower"></i>`,
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
+
+            const popup = L.popup()
+                .setContent(`
+                    <div class="beacon-popup">
+                        <h3>Beacon #${beaconId}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+                    </div>
+                `);
+            marker.bindPopup(popup);
+
+            marker.on('dragend', function(event) {
+                const position = event.target.getLatLng();
+                updateBeaconPosition(beaconId, position.lat, position.lng);
+            });
+
+            beaconMarkers.set(beaconId, marker);
+            return marker;
+        }
+
+        // Fonction pour mettre à jour la position d'un beacon
+        async function updateBeaconPosition(beaconId, latitude, longitude) {
+            try {
+                const response = await fetch(`/api/beacons/${beaconId}/position`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ latitude, longitude })
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour de la position du beacon');
+            }
+        }
+
+        // Gestionnaire pour le bouton d'ajout de beacon
+        document.getElementById('addBeaconBtn').addEventListener('click', function() {
+            const center = map.getCenter();
+            createBeaconMarker(center.lat, center.lng);
         });
 
-        // Gestion du drop sur la carte
-        map.on('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        map.on('drop', (e) => {
-            if (draggedStudent) {
-                const emoji = draggedStudent.querySelector('.student-emoji').textContent;
-                const studentName = draggedStudent.querySelector('h3').textContent;
+        // Initialisation des étudiants et beacons
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Charger les étudiants
+                const studentsResponse = await fetch('/api/students');
+                const studentsData = await studentsResponse.json();
                 
-                // Créer un marqueur à la position du drop
-                const marker = L.marker(e.latlng, {
-                    draggable: true,
-                    icon: L.divIcon({
-                        className: 'student-marker',
-                        html: emoji,
-                        iconSize: [40, 40]
-                    })
-                }).addTo(map);
+                const studentsList = document.getElementById('studentsList');
+                studentsList.innerHTML = '';
 
-                // Ajouter un popup avec le nom de l'étudiant
-                marker.bindPopup(studentName);
+                studentsData.forEach(student => {
+                    students.set(student.id, student);
+                    const listItem = createStudentListItem(student);
+                    studentsList.appendChild(listItem);
+                    
+                    const marker = createStudentMarker(student);
+                    studentMarkers.set(student.id, marker);
+                });
+
+                // Charger les beacons existants
+                const beaconsResponse = await fetch('/api/beacons');
+                const beaconsData = await beaconsResponse.json();
                 
-                draggedStudent = null;
+                beaconsData.forEach(beacon => {
+                    createBeaconMarker(beacon.latitude, beacon.longitude);
+                });
+            } catch (error) {
+                console.error('Erreur lors du chargement:', error);
             }
         });
     </script>

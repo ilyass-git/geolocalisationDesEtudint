@@ -1,0 +1,213 @@
+/* Styles généraux */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f6fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Styles de la carte */
+#map {
+    height: 600px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles des beacons */
+.ble-beacon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e74c3c;
+    font-size: 20px;
+}
+
+.ble-beacon i {
+    text-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+/* Styles des étudiants */
+.student-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3498db;
+    font-size: 20px;
+}
+
+.student-marker.valid {
+    color: #2ecc71;
+}
+
+.student-marker.invalid {
+    color: #e74c3c;
+}
+
+.student-marker i {
+    text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* Styles des formulaires */
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Styles des boutons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* Styles des listes */
+.list-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.list-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+/* Styles des popups */
+.leaflet-popup-content {
+    margin: 10px;
+}
+
+.leaflet-popup-content strong {
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+/* Styles des tooltips */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Styles des zones */
+.zone-polygon {
+    stroke-width: 2;
+    stroke-opacity: 1;
+    fill-opacity: 0.2;
+}
+
+/* Styles des messages d'erreur */
+.error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Styles des messages de succès */
+.success-message {
+    color: #2ecc71;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    #map {
+        height: 400px;
+    }
+
+    .form-container,
+    .list-container {
+        padding: 15px;
+    }
+} 
