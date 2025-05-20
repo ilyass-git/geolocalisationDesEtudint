@@ -250,6 +250,234 @@
             margin: 0.5rem 0;
             color: #666;
         }
+
+        /* Style pour le bouton d'ajout de zone */
+        .add-zone-btn {
+            position: fixed;
+            bottom: 8rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-zone-btn:hover {
+            transform: scale(1.1);
+            background-color: #c0392b;
+        }
+
+        /* Style pour le panneau de contrôle des zones */
+        .zone-control-panel {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            width: 300px;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .zone-control-panel.active {
+            display: block;
+        }
+
+        .zone-control-panel.drawing {
+            top: 1rem;
+            right: 1rem;
+            transform: none;
+            width: 250px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .zone-control-panel.drawing .zone-form {
+            display: none;
+        }
+
+        .zone-control-panel.drawing .drawing-info {
+            display: block;
+        }
+
+        .drawing-info {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .drawing-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .drawing-info p {
+            margin: 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .drawing-progress {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .drawing-progress span {
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+
+        .zone-control-panel h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zone-form {
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group select[multiple] {
+            height: 100px;
+        }
+
+        .zone-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .zone-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .zone-actions .save-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .zone-actions .cancel-btn {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+        }
+
+        .zone-list {
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .zone-item {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+        }
+
+        .zone-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .zone-item p {
+            margin: 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .zone-item .zone-actions {
+            margin-top: 0.5rem;
+        }
+
+        .zone-item .zone-actions button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Style pour le bouton de dessin */
+        .start-drawing-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .start-drawing-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .start-drawing-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .drawing-instructions {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .drawing-instructions.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -295,6 +523,53 @@
             <div class="student-list" id="studentsList">
                 <!-- La liste des étudiants sera générée dynamiquement ici -->
             </div>
+        </div>
+    </div>
+
+    <!-- Bouton d'ajout de zone -->
+    <button class="add-zone-btn" id="addZoneBtn">
+        <i class="fas fa-draw-polygon"></i>
+    </button>
+
+    <!-- Panneau de contrôle des zones -->
+    <div class="zone-control-panel" id="zoneControlPanel">
+        <h3><i class="fas fa-draw-polygon"></i> Gestion des Zones</h3>
+        <div class="zone-form">
+            <div class="form-group">
+                <label for="zoneName">Nom de la zone</label>
+                <input type="text" id="zoneName" required>
+            </div>
+            <div class="form-group">
+                <label for="zoneType">Type de zone</label>
+                <select id="zoneType" required>
+                    <option value="ETUDIANT">Étudiant</option>
+                    <option value="CLASSE">Classe</option>
+                    <option value="GROUPE">Groupe</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="zoneTargets">Cibles</label>
+                <select id="zoneTargets" multiple required>
+                    <!-- Les options seront remplies dynamiquement -->
+                </select>
+            </div>
+            <button class="start-drawing-btn" id="startDrawingBtn" disabled>
+                <i class="fas fa-draw-polygon"></i> Commencer le dessin
+            </button>
+        </div>
+        <div class="drawing-info" id="drawingInfo">
+            <h4><i class="fas fa-draw-polygon"></i> Dessin en cours</h4>
+            <p>Cliquez sur la carte pour créer les points de la zone</p>
+            <div class="drawing-progress">
+                Points créés : <span id="pointsCount">0</span>
+            </div>
+            <div class="zone-actions" style="margin-top: 1rem;">
+                <button class="save-btn" id="saveZoneBtn">Terminer</button>
+                <button class="cancel-btn" id="cancelZoneBtn">Annuler</button>
+            </div>
+        </div>
+        <div class="zone-list" id="zoneList">
+            <!-- La liste des zones sera générée dynamiquement -->
         </div>
     </div>
 
@@ -559,7 +834,351 @@
             refreshStudentPositions();
             // Rafraîchir les positions toutes les 5 secondes
             setInterval(refreshStudentPositions, 5000);
+            updateZoneTargets();
+            refreshZones();
         });
+
+        // Variables pour la gestion des zones
+        let drawingMode = false;
+        let currentZone = null;
+        let zonePoints = [];
+        let zonePolygon = null;
+
+        // Initialisation du dessin de zone
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    drawError: {
+                        color: '#e74c3c',
+                        timeout: 1000
+                    },
+                    shapeOptions: {
+                        color: '#e74c3c'
+                    }
+                },
+                circle: false,
+                rectangle: false,
+                polyline: false,
+                circlemarker: false,
+                marker: false
+            },
+            edit: {
+                featureGroup: new L.FeatureGroup()
+            }
+        });
+
+        map.addControl(drawControl);
+
+        // Gestionnaire pour le bouton d'ajout de zone
+        document.getElementById('addZoneBtn').addEventListener('click', function() {
+            const panel = document.getElementById('zoneControlPanel');
+            panel.classList.toggle('active');
+            if (!panel.classList.contains('active')) {
+                stopDrawingZone();
+                resetZoneForm();
+            }
+        });
+
+        // Fonction pour réinitialiser le formulaire
+        function resetZoneForm() {
+            document.getElementById('zoneName').value = '';
+            document.getElementById('zoneType').value = 'ETUDIANT';
+            document.getElementById('zoneTargets').value = '';
+            document.getElementById('startDrawingBtn').disabled = true;
+            document.getElementById('drawingInfo').style.display = 'none';
+            document.getElementById('pointsCount').textContent = '0';
+            updateZoneTargets();
+        }
+
+        // Vérification des champs du formulaire
+        function checkFormValidity() {
+            const name = document.getElementById('zoneName').value;
+            const type = document.getElementById('zoneType').value;
+            const targets = document.getElementById('zoneTargets').selectedOptions;
+            
+            document.getElementById('startDrawingBtn').disabled = !(name && type && targets.length > 0);
+        }
+
+        // Ajout des écouteurs d'événements pour la validation du formulaire
+        document.getElementById('zoneName').addEventListener('input', checkFormValidity);
+        document.getElementById('zoneType').addEventListener('change', checkFormValidity);
+        document.getElementById('zoneTargets').addEventListener('change', checkFormValidity);
+
+        // Gestionnaire pour le bouton de démarrage du dessin
+        document.getElementById('startDrawingBtn').addEventListener('click', function() {
+            startDrawingZone();
+            const panel = document.getElementById('zoneControlPanel');
+            panel.classList.add('drawing');
+            document.getElementById('drawingInfo').style.display = 'block';
+            this.disabled = true;
+        });
+
+        // Fonction pour démarrer le dessin de zone
+        function startDrawingZone() {
+            drawingMode = true;
+            map.dragging.disable();
+            document.getElementById('addZoneBtn').classList.add('active');
+            
+            // Ajouter l'écouteur d'événements pour le dessin
+            map.on('click', handleMapClick);
+        }
+
+        // Gestionnaire des clics sur la carte
+        function handleMapClick(e) {
+            if (!drawingMode) return;
+
+            const latlng = e.latlng;
+            zonePoints.push(latlng);
+
+            // Mettre à jour le compteur de points
+            document.getElementById('pointsCount').textContent = zonePoints.length;
+
+            if (zonePolygon) {
+                map.removeLayer(zonePolygon);
+            }
+
+            // Créer ou mettre à jour le polygone
+            zonePolygon = L.polygon(zonePoints, {
+                color: '#e74c3c',
+                fillColor: '#e74c3c',
+                fillOpacity: 0.2
+            }).addTo(map);
+
+            // Si c'est le premier point, créer un marqueur
+            if (zonePoints.length === 1) {
+                L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'start-point-marker',
+                        html: '<i class="fas fa-play"></i>',
+                        iconSize: [20, 20]
+                    })
+                }).addTo(map);
+            }
+
+            // Vérifier si on peut fermer la zone
+            if (zonePoints.length >= 3) {
+                const firstPoint = zonePoints[0];
+                const lastPoint = zonePoints[zonePoints.length - 1];
+                const distance = map.distance(firstPoint, lastPoint);
+
+                if (distance < 50) { // Si le dernier point est proche du premier
+                    zonePoints.pop(); // Supprimer le dernier point
+                    zonePoints.push(firstPoint); // Ajouter le premier point pour fermer la zone
+                    finishDrawing();
+                }
+            }
+        }
+
+        // Fonction pour terminer le dessin
+        function finishDrawing() {
+            drawingMode = false;
+            map.dragging.enable();
+            map.off('click', handleMapClick);
+            document.getElementById('addZoneBtn').classList.remove('active');
+            
+            const panel = document.getElementById('zoneControlPanel');
+            panel.classList.remove('drawing');
+            document.getElementById('drawingInfo').style.display = 'none';
+        }
+
+        // Fonction pour mettre à jour les cibles disponibles
+        function updateZoneTargets() {
+            const type = document.getElementById('zoneType').value;
+            const targetsSelect = document.getElementById('zoneTargets');
+            targetsSelect.innerHTML = '';
+
+            // Récupérer les étudiants depuis le serveur
+            fetch('/api/students')
+                .then(response => response.json())
+                .then(studentsData => {
+                    console.log('Données des étudiants reçues:', studentsData); // Pour le débogage
+                    switch(type) {
+                        case 'ETUDIANT':
+                            studentsData.forEach(student => {
+                                const option = document.createElement('option');
+                                option.value = student.id;
+                                option.textContent = `${student.prenom} ${student.nom} (${student.matricule})`;
+                                targetsSelect.appendChild(option);
+                            });
+                            break;
+                        case 'CLASSE':
+                            // Extraire les années uniques
+                            const classes = [...new Set(studentsData.map(s => s.annee))].sort();
+                            classes.forEach(classe => {
+                                const option = document.createElement('option');
+                                option.value = classe.toString();
+                                option.textContent = `Année ${classe}`;
+                                targetsSelect.appendChild(option);
+                            });
+                            break;
+                        case 'GROUPE':
+                            // Extraire les groupes uniques
+                            const groupes = [...new Set(studentsData.map(s => s.groupe))].sort();
+                            groupes.forEach(groupe => {
+                                const option = document.createElement('option');
+                                option.value = groupe;
+                                option.textContent = `Groupe ${groupe}`;
+                                targetsSelect.appendChild(option);
+                            });
+                            break;
+                    }
+                    console.log('Options de cibles mises à jour:', targetsSelect.options); // Pour le débogage
+                    // Vérifier la validité du formulaire après avoir mis à jour les options
+                    checkFormValidity();
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des étudiants:', error);
+                });
+        }
+
+        // Gestionnaire pour le type de zone
+        document.getElementById('zoneType').addEventListener('change', function() {
+            updateZoneTargets();
+        });
+
+        // Gestionnaire pour l'enregistrement d'une zone
+        document.getElementById('saveZoneBtn').addEventListener('click', async function() {
+            if (zonePoints.length < 3) {
+                alert('Veuillez dessiner une zone valide (au moins 3 points)');
+                return;
+            }
+
+            const zoneName = document.getElementById('zoneName').value;
+            const zoneType = document.getElementById('zoneType').value;
+            const selectedTargets = Array.from(document.getElementById('zoneTargets').selectedOptions).map(opt => opt.value);
+
+            if (!zoneName || !zoneType || selectedTargets.length === 0) {
+                alert('Veuillez remplir tous les champs requis');
+                return;
+            }
+
+            // Créer les points avec le bon format
+            const points = [];
+            for (let i = 0; i < zonePoints.length; i++) {
+                points.push({
+                    latitude: Number(zonePoints[i].lat),
+                    longitude: Number(zonePoints[i].lng)
+                });
+            }
+
+            const zoneData = {
+                nom: zoneName,
+                type: zoneType,
+                cible: selectedTargets,
+                couleur: '#e74c3c',
+                points: points
+            };
+
+            // Log des données pour le débogage
+            console.log('Points de la zone:', points);
+            console.log('Données complètes:', JSON.stringify(zoneData, null, 2));
+
+            try {
+                const response = await fetch('/api/zones', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(zoneData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    throw new Error(errorData?.message || 'Erreur lors de la création de la zone');
+                }
+
+                const newZone = await response.json();
+                console.log('Zone créée avec succès:', newZone);
+
+                alert('Zone créée avec succès !');
+                
+                // Nettoyer l'interface
+                if (zonePolygon) {
+                    map.removeLayer(zonePolygon);
+                }
+                zonePoints = [];
+                zonePolygon = null;
+                
+                // Réinitialiser le formulaire et fermer le panneau
+                resetZoneForm();
+                document.getElementById('zoneControlPanel').classList.remove('active');
+                document.getElementById('zoneControlPanel').classList.remove('drawing');
+                
+                // Rafraîchir la liste des zones
+                await refreshZones();
+            } catch (error) {
+                console.error('Erreur détaillée:', error);
+                alert('Erreur lors de la création de la zone: ' + error.message);
+            }
+        });
+
+        // Fonction pour réinitialiser le formulaire
+        function resetZoneForm() {
+            document.getElementById('zoneName').value = '';
+            document.getElementById('zoneType').value = 'ETUDIANT';
+            document.getElementById('zoneTargets').value = '';
+            document.getElementById('startDrawingBtn').disabled = true;
+            document.getElementById('drawingInfo').style.display = 'none';
+            document.getElementById('pointsCount').textContent = '0';
+            updateZoneTargets();
+        }
+
+        // Fonction pour arrêter le dessin
+        function stopDrawingZone() {
+            drawingMode = false;
+            map.dragging.enable();
+            map.off('click', handleMapClick);
+            document.getElementById('addZoneBtn').classList.remove('active');
+            
+            if (zonePolygon) {
+                map.removeLayer(zonePolygon);
+            }
+            zonePoints = [];
+            zonePolygon = null;
+        }
+
+        // Gestionnaire pour l'annulation
+        document.getElementById('cancelZoneBtn').addEventListener('click', function() {
+            stopDrawingZone();
+            const panel = document.getElementById('zoneControlPanel');
+            panel.classList.remove('drawing');
+            document.getElementById('drawingInfo').style.display = 'none';
+            resetZoneForm();
+        });
+
+        // Fonction pour rafraîchir la liste des zones
+        async function refreshZones() {
+            try {
+                const response = await fetch('/api/zones');
+                const zones = await response.json();
+                
+                const zoneList = document.getElementById('zoneList');
+                zoneList.innerHTML = '';
+
+                zones.forEach(zone => {
+                    const zoneItem = document.createElement('div');
+                    zoneItem.className = 'zone-item';
+                    zoneItem.innerHTML = `
+                        <h4>${zone.nom}</h4>
+                        <p><i class="fas fa-tag"></i> Type: ${zone.type}</p>
+                        <p><i class="fas fa-bullseye"></i> Cible: ${zone.cible}</p>
+                        <div class="zone-actions">
+                            <button class="edit-btn" onclick="editZone(${zone.id})">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="delete-btn" onclick="deleteZone(${zone.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    `;
+                    zoneList.appendChild(zoneItem);
+                });
+            } catch (error) {
+                console.error('Erreur lors du rafraîchissement des zones:', error);
+            }
+        }
     </script>
 </body>
 </html> 

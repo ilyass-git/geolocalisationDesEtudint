@@ -21,8 +21,10 @@ public class Zone {
     @Enumerated(EnumType.STRING)
     private ZoneType type;
 
-    @NotBlank(message = "La cible est obligatoire")
-    private String cible; // ID de la cible (classe, étudiant ou année)
+    @ElementCollection
+    @CollectionTable(name = "zone_cibles", joinColumns = @JoinColumn(name = "zone_id"))
+    @Column(name = "cible")
+    private List<String> cible = new ArrayList<>();
 
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Point> points = new ArrayList<>();
@@ -36,7 +38,7 @@ public class Zone {
                 "id=" + id +
                 ", nom='" + nom + '\'' +
                 ", type=" + type +
-                ", cible='" + cible + '\'' +
+                ", cible=" + cible +
                 ", couleur='" + couleur + '\'' +
                 '}';
     }

@@ -3,6 +3,8 @@ package com.example.demo.repository;
 import com.example.demo.model.Zone;
 import com.example.demo.model.ZoneType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -12,8 +14,10 @@ public interface ZoneRepository extends JpaRepository<Zone, Long> {
     List<Zone> findByType(ZoneType type);
     
     // Rechercher les zones par cible
-    List<Zone> findByCible(String cible);
+    @Query("SELECT z FROM Zone z JOIN z.cible c WHERE c = :cible")
+    List<Zone> findByCible(@Param("cible") String cible);
     
     // Rechercher les zones par type et cible
-    List<Zone> findByTypeAndCible(ZoneType type, String cible);
+    @Query("SELECT z FROM Zone z JOIN z.cible c WHERE z.type = :type AND c = :cible")
+    List<Zone> findByTypeAndCible(@Param("type") ZoneType type, @Param("cible") String cible);
 } 

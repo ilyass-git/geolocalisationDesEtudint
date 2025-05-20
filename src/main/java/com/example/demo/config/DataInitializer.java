@@ -67,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
             Zone zone1 = new Zone();
             zone1.setNom("Zone G1");
             zone1.setType(ZoneType.CLASSE);
-            zone1.setCible("G1");
+            zone1.setCible(Arrays.asList("G1"));
             zone1.setCouleur("#FF0000");
 
             Point point1 = new Point();
