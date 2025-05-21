@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 @Entity
@@ -15,6 +16,7 @@ public class Point {
 
     @ManyToOne
     @JoinColumn(name = "zone_id")
+    @JsonIgnore
     private Zone zone;
 
     @Override
